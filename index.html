@@ -924,12 +924,25 @@
     if (savedId) document.getElementById('userIdInput').value = savedId;
   };
 
-  // Salvar token no localStorage quando conectar
-  const _conectar = conectar;
   async function conectar() {
-    localStorage.setItem('casaluz_token', document.getElementById('tokenInput').value.trim());
-    localStorage.setItem('casaluz_userid', document.getElementById('userIdInput').value.trim());
-    await _conectar();
+    TOKEN = document.getElementById('tokenInput').value.trim();
+    USER_ID = document.getElementById('userIdInput').value.trim();
+    if (!TOKEN || !USER_ID) { showToast('Preencha o token e o User ID', 'error'); return; }
+    localStorage.setItem('casaluz_token', TOKEN);
+    localStorage.setItem('casaluz_userid', USER_ID);
+    showToast('Conectando...');
+    try {
+      const r = await apiGet('products?per_page=1');
+      if (r) {
+        document.getElementById('statusBadge').textContent = '● Conectado';
+        document.getElementById('statusBadge').classList.add('connected');
+        showToast('Loja conectada com sucesso!', 'success');
+        await carregarProdutos();
+        await carregarPedidos();
+      }
+    } catch(e) {
+      showToast('Erro ao conectar. Verifique o token.', 'error');
+    }
   }
 </script>
 </body>
